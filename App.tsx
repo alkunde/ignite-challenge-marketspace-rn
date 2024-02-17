@@ -1,12 +1,12 @@
 import { StatusBar } from 'react-native';
 import { NativeBaseProvider } from 'native-base';
-import {
-  useFonts,
-  Karla_400Regular,
-  Karla_700Bold,
-} from '@expo-google-fonts/karla';
+import { useFonts, Karla_400Regular, Karla_700Bold } from '@expo-google-fonts/karla';
 
-import { SignIn } from '@screens/SignIn';
+import { Loading } from '@components/Loading';
+
+import { Routes } from '@routes/index';
+
+import { AuthContextProvider } from '@contexts/AuthContext';
 
 import { THEME } from './src/theme';
 
@@ -16,14 +16,16 @@ export default function App() {
     Karla_700Bold,
   });
 
-  if (!fontsLoaded) {
-    return;
-  }
-
   return (
     <NativeBaseProvider theme={THEME}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-      <SignIn />
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
+      <AuthContextProvider>
+        {fontsLoaded ? <Routes /> : <Loading />}
+      </AuthContextProvider>
     </NativeBaseProvider>
   );
 }
