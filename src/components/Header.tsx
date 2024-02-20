@@ -4,8 +4,9 @@ import { useNavigation } from "@react-navigation/native";
 import { ArrowLeft, PencilSimpleLine, Plus } from "phosphor-react-native";
 
 import { AppNavigatorRouteProps } from "@routes/app.routes";
+import { InterfaceHStackProps } from "native-base/lib/typescript/components/primitives/Stack/HStack";
 
-type Props = {
+type Props = InterfaceHStackProps & {
   title: string;
   showBackButton?: boolean;
   showEditButton?: boolean;
@@ -17,6 +18,7 @@ export function Header({
   showBackButton = false,
   showEditButton = false,
   showAddButton = false,
+  ...rest
 }: Props) {
   const navigation = useNavigation<AppNavigatorRouteProps>();
 
@@ -31,7 +33,7 @@ export function Header({
   }
 
   return (
-    <HStack justifyContent="space-between" alignItems="center">
+    <HStack justifyContent="space-between" alignItems="center" {...rest}>
       {showBackButton ? (
         <TouchableOpacity onPress={handleLeftButton}>
           <Icon as={<ArrowLeft size={24} />} color="gray_1" />

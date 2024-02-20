@@ -14,6 +14,7 @@ export const THEME = extendTheme({
     gray_7: "#F7F7F8",
     red_light: "#EE7979",
     blue_light: "#647AC7",
+    blue_alpha: "#D2D8EF",
     blue_dark: "#364D9D",
   },
   fonts: {

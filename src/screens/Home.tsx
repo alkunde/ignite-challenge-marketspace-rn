@@ -1,4 +1,4 @@
-import { Circle, HStack, Text, VStack } from "native-base";
+import { Circle, HStack, Input, ScrollView, Text, VStack } from "native-base";
 import { useNavigation } from "@react-navigation/native";
 
 import { Button } from "@components/Button";
@@ -6,6 +6,9 @@ import { Button } from "@components/Button";
 import { useAuth } from "@hooks/useAuth";
 
 import { AppNavigatorRouteProps } from "@routes/app.routes";
+import { InfoAdvertises } from "@components/InfoAdvertises";
+import { useEffect } from "react";
+import { api } from "@services/api";
 
 export function Home() {
   const { user } = useAuth();
@@ -15,9 +18,22 @@ export function Home() {
     navigation.navigate("new_advertise");
   }
 
+  useEffect(() => {
+    async function getProducts() {
+      const response = await api.get("/products");
+      console.log(response.data);
+    }
+
+    getProducts();
+  }, []);
+
   return (
-    <VStack flex={1} bg="gray_6" safeAreaTop pt={6} px={6}>
-      <HStack w="full" alignItems="center" justifyContent="space-between">
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1 }}
+      showsVerticalScrollIndicator={false}
+      p={6}
+    >
+      <HStack safeAreaTop w="full" alignItems="center" justifyContent="space-between">
         <HStack>
           <Circle size="45" borderColor="blue_light" borderWidth={2}>
 
@@ -43,6 +59,18 @@ export function Home() {
           onPress={handleNewAdvertise}
         />
       </HStack>
-    </VStack>
+
+      <Text fontFamily="body" fontSize="sm" color="gray_3" mt={6}>
+        Seus produtos anunciados para venda
+      </Text>
+
+      <InfoAdvertises />
+
+      <Text fontFamily="body" fontSize="sm" color="gray_3" mt={6}>
+        Compre produtos variados
+      </Text>
+
+      <Input mt={2} bg="gray_7" borderWidth={0} />
+    </ScrollView>
   );
 }
