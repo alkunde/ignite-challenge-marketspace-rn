@@ -29,7 +29,7 @@ export function ImageSelector() {
     }
 
     if (selectedImage.assets[0].uri) {
-      const photoInfo = await FileSystem.getInfoAsync(selectedImage.assets[0].uri)
+      const photoInfo = await FileSystem.getInfoAsync(selectedImage.assets[0].uri);
 
       if (photoInfo.exists && photoInfo.size / 1024 / 1024 > 5) {
         return toast.show({
@@ -38,14 +38,13 @@ export function ImageSelector() {
         });
       }
 
-      const fileExtension = selectedImage.assets[0].uri.split('0').pop();
+      const fileExtension = selectedImage.assets[0].uri.split('.').pop();
 
       const photoFile = {
         name: `${Math.random().toString().replace('0.', '')}.${fileExtension}`,
         uri: selectedImage.assets[0].uri,
         type: `${selectedImage.assets[0].type}/${fileExtension}`,
       } as any
-      console.log(photoFile);
 
       setSelectedImages((prevState) => [...prevState, photoFile]);
     }

@@ -1,4 +1,4 @@
-import { Circle, HStack, Input, ScrollView, Text, VStack } from "native-base";
+import { Circle, HStack, Image, Input, ScrollView, Text, VStack } from "native-base";
 import { useNavigation } from "@react-navigation/native";
 
 import { Button } from "@components/Button";
@@ -20,8 +20,8 @@ export function Home() {
 
   useEffect(() => {
     async function getProducts() {
+      console.log(`${api.defaults.baseURL}/images/${user.avatar}`);
       const response = await api.get("/products");
-      console.log(response.data);
     }
 
     getProducts();
@@ -35,9 +35,15 @@ export function Home() {
     >
       <HStack safeAreaTop w="full" alignItems="center" justifyContent="space-between">
         <HStack>
-          <Circle size="45" borderColor="blue_light" borderWidth={2}>
-
-          </Circle>
+          <Image
+            source={{ uri: `${api.defaults.baseURL}/images/${user.avatar}`}}
+            size="45"
+            borderColor="blue_light"
+            borderWidth={2}
+            rounded="full"
+            overflow="hidden"
+            alt="Foto de perfil"
+          />
 
           <VStack ml={2}>
             <Text fontFamily="body" fontSize="md" color="gray_1">

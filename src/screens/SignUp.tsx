@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Center, Circle, HStack, Icon, Pressable, ScrollView, Text, VStack, useToast } from "native-base";
+import { Center, Circle, HStack, Icon, Image, Pressable, ScrollView, Text, VStack, useToast } from "native-base";
 import { useNavigation } from "@react-navigation/native";
+import { Eye, EyeSlash, User, PencilSimpleLine } from "phosphor-react-native";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
 import * as yup from "yup";
-import { Eye, EyeSlash, User, PencilSimpleLine } from "phosphor-react-native";
 
 import Logo from '@assets/logo.svg';
 
@@ -21,15 +21,6 @@ import { api } from "@services/api";
 
 import { AppError } from "@utils/AppError";
 import { TouchableOpacity } from "react-native";
-
-type UserImageSelectedProps = {
-  selected: boolean;
-  photo: {
-    uri: string;
-    name: string;
-    type: string;
-  };
-};
 
 type FormData = {
   name: string;
@@ -58,7 +49,9 @@ export function SignUp() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [photoLoading, setPhotoLoading] = useState(false);
-  const [userPhoto, setUserPhoto] = useState({ selected: false } as UserImageSelectedProps);
+  const [userPhoto, setUserPhoto] = useState<ImagePicker.ImagePickerAsset>(
+    {} as ImagePicker.ImagePickerAsset
+  );
 
   const { control, handleSubmit, formState: { errors } } = useForm<FormData>({
     resolver: yupResolver(signUpSchema)
@@ -83,29 +76,7 @@ export function SignUp() {
         return;
       }
 
-      if (photoSelected.assets[0].uri) {
-        const photoInfo = await FileSystem.getInfoAsync(photoSelected.assets[0].uri);
-
-        if (photoInfo.exists && photoInfo.size / 1024 / 1024 > 5) {
-          return toast.show({
-            title: "Essa image é muito grande",
-            placement: "top",
-            bgColor: "red.500",
-          });
-        }
-
-        const fileExtension = photoSelected.assets[0].uri.split(".").pop();
-        const photoFile = {
-          name: `${fileExtension}`.toLowerCase(),
-          uri: photoSelected.assets[0].uri,
-          type: `${photoSelected.assets[0].type}/${fileExtension}`,
-        } as any;
-
-        setUserPhoto({
-          selected: true,
-          photo: { ...photoFile },
-        });
-      }
+      setUserPhoto(photoSelected.assets[0]);
     } catch(error) {
       toast.show({
         title: "Ocorreu um problema ao selecionar a foto",
@@ -119,7 +90,7 @@ export function SignUp() {
 
   async function handleSignUp({ name, email, phone, password }: FormData) {
     try {
-      if (!userPhoto.selected) {
+      if (!userPhoto || !userPhoto.uri) {
         return toast.show({
           title: "Selecione uma foto",
           placement: "top",
@@ -129,23 +100,25 @@ export function SignUp() {
 
       setIsLoading(true);
 
-      const userImage = {
-        ...userPhoto.photo,
-        name: `${name}.${userPhoto.photo.name}`.toLowerCase(),
-      };
+      const fileExtension = userPhoto.uri.split('.').pop();
+      const fileName = `${Math.random().toString().replace('0.', '')}-${name}.${fileExtension}`;
 
-      console.log(userImage);
-      userForm.append("avatar", userImage);
+      const photoFile = {
+        name: fileName,
+        uri: userPhoto.uri,
+        type: `${userPhoto.type}/${fileExtension}`,
+      } as any;
+
+      userForm.append("avatar", photoFile);
       userForm.append("name", name);
       userForm.append("email", email);
       userForm.append("tel", phone);
       userForm.append("password", password);
 
       await api.post("/users", userForm, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
+
       await signIn(email, password);
     } catch(error) {
       setIsLoading(false);
@@ -182,9 +155,20 @@ export function SignUp() {
 
         <HStack mt={8} alignItems="center" justifyContent="center" mb={2}>
           <TouchableOpacity onPress={handleUserPhotoSelect}>
-            <Circle h="88" w="88" bg="gray_5" borderWidth={4} borderColor="blue_light">
-              <Icon as={<User size={45} weight="bold" />} color="gray_4" />
-            </Circle>
+            {userPhoto && userPhoto.uri ? (
+              <Image
+                source={{ uri: userPhoto.uri }}
+                size="88"
+                borderWidth={4}
+                borderColor="blue_light"
+                rounded="full"
+                alt="Foto do perfil"
+              />
+            ) : (
+              <Circle h="88" w="88" bg="gray_5" borderWidth={4} borderColor="blue_light">
+                <Icon as={<User size={45} weight="bold" />} color="gray_4" />
+              </Circle>
+            )}
           </TouchableOpacity>
 
           <Circle size={10} bg="blue_light" ml={-8} mt={12}>
